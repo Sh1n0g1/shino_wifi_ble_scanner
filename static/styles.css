@@ -1,0 +1,239 @@
+:root {
+  --bg: #0b1020;
+  --card: #121831;
+  --text: #e7ecff;
+  --muted: #9fb0ffcc;
+  --accent: #7aa2ff;
+  --row-alt: #0f1630;
+  --border: #1c254a;
+  --green: #79ffb2;
+  --red: #ff7979;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  height: 100%;
+  background: var(--bg);
+  color: var(--text);
+  font: 14px/1.4 system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji";
+}
+
+header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+  background: linear-gradient(180deg, #0b1020, #0c1225);
+}
+
+h1 {
+  margin: 0;
+  font-size: 20px;
+  letter-spacing: 0.2px;
+}
+
+#status { color: var(--muted); font-size: 12px; }
+
+main { padding: 18px; }
+
+.table-wrap {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+thead th {
+  text-align: left;
+  padding: 12px 14px;
+  font-weight: 600;
+  color: var(--muted);
+  background: #121831;
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+tbody td {
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: middle;
+}
+
+tbody tr:nth-child(even) { background: var(--row-alt); }
+
+.badge {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: #1a244a;
+  color: var(--accent);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.dim { color: var(--muted); }
+
+.mac-vendor {
+  display: inline-block;
+  color: var(--muted);
+  margin-left: 8px;
+  font-size: 12px;
+}
+
+.signal {
+  font-feature-settings: "tnum";
+  font-variant-numeric: tabular-nums;
+}
+
+.spark {
+  display: block;
+  width: 300px;
+  height: 36px;
+}
+
+footer {
+  padding: 14px 20px 22px;
+  color: var(--muted);
+}
+
+/* Stats bar */
+.stats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(140px, 1fr));
+  gap: 12px;
+  padding: 14px 18px 0;
+}
+
+.stat {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 12px 14px;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.25);
+}
+
+.stat-label {
+  color: var(--muted);
+  font-size: 12px;
+  letter-spacing: .3px;
+  margin-bottom: 6px;
+}
+
+.stat-value {
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+/* Filters */
+.filters {
+  display: grid;
+  grid-template-columns: 1fr 160px 220px;
+  gap: 12px;
+  padding: 14px 18px;
+  align-items: end;
+}
+
+.filter-group label {
+  display: block;
+  font-size: 12px;
+  color: var(--muted);
+  margin-bottom: 6px;
+}
+
+.filters input[type="text"],
+.filters input[type="number"],
+.filters select {
+  width: 100%;
+  padding: 8px 10px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: #0f1630;
+  color: var(--text);
+  outline: none;
+}
+
+.rssi-range {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.rssi-range span { color: var(--muted); }
+
+/* Sortable headers */
+th.sortable {
+  cursor: pointer;
+  user-select: none;
+}
+th.sortable .sort-ind::before {
+  content: "↕";
+  opacity: 0.35;
+  margin-left: 6px;
+  font-size: 11px;
+}
+th.sortable.asc .sort-ind::before { content: "↑"; opacity: 0.9; }
+th.sortable.desc .sort-ind::before { content: "↓"; opacity: 0.9; }
+.toggle-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 8px 18px 0;
+  color: var(--text);
+  cursor: pointer;
+  user-select: none;
+  font-size: 13px;
+}
+
+.toggle-label input[type="checkbox"] {
+  appearance: none;
+  width: 34px;
+  height: 20px;
+  border-radius: 999px;
+  background: #0f1630;
+  border: 1px solid var(--border);
+  position: relative;
+  outline: none;
+  transition: background .15s ease;
+}
+
+.toggle-label input[type="checkbox"]::after {
+  content: "";
+  position: absolute;
+  top: 2px; left: 2px;
+  width: 16px; height: 16px;
+  border-radius: 50%;
+  background: #7aa2ff;
+  transition: transform .15s ease;
+}
+
+.toggle-label input[type="checkbox"]:checked {
+  background: #1a244a;
+}
+
+.toggle-label input[type="checkbox"]:checked::after {
+  transform: translateX(14px);
+}
+
+.signal-green {
+  color: #79ffb2; /* bright green */
+}
+.signal-yellow {
+  color: #ffee99; /* soft yellow */
+}
+.signal-orange {
+  color: #ffbb66; /* orange */
+}
+.signal-red {
+  color: #ff7979; /* red */
+}

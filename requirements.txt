@@ -1,0 +1,5 @@
+flask
+bleak
+pywifi
+mac-vendor-lookup
+bluetooth-numbers

@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Wi-Fi & BLE Scanner</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link href="/static/styles.css" rel="stylesheet" />
+</head>
+<body>
+  <header>
+    <h1>Wi-Fi & BLE Scanner</h1>
+    <div id="status">
+      <span id="last-refresh">—</span>
+    </div>
+    
+    <label class="toggle-label">
+      <input id="mask-mac" type="checkbox" />
+      <span>Mask MAC</span>
+    </label>
+  </header>
+  <section class="stats">
+    <div class="stat">
+      <div class="stat-label">Wi-Fi</div>
+      <div class="stat-value" id="wifi-count">0</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">BLE</div>
+      <div class="stat-value" id="ble-count">0</div>
+    </div>
+  </section>
+  <main>
+    <!-- Filters -->
+    <section class="filters">
+      
+      
+      <div class="filter-group">
+        <label for="filter-text">Search</label>
+        <input id="filter-text" type="text" placeholder="SSID / BLE name / MAC / Vendor" />
+      </div>
+      <div class="filter-group">
+        <label for="filter-type">Type</label>
+        <select id="filter-type">
+          <option value="all">All</option>
+          <option value="wifi">Wi-Fi</option>
+          <option value="ble">BLE</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label>RSSI (dBm)</label>
+        <div class="rssi-range">
+          <input id="filter-rssi-min" type="number" value="-300">
+          <span>to</span>
+          <input id="filter-rssi-max" type="number" value="0">
+        </div>
+      </div>
+    </section>
+    <div class="table-wrap">
+      <table id="devices-table">
+        <thead>
+          <tr>
+            <th class="sortable" data-key="type">Type <span class="sort-ind"></span></th>
+            <th class="sortable" data-key="name">Wi-Fi SSID / BLE Device Name <span class="sort-ind"></span></th>
+            <th class="sortable" data-key="mac">MAC Address (Vendor) <span class="sort-ind"></span></th>
+            <th class="sortable" data-key="signal_dbm">Signal (dBm) <span class="sort-ind"></span></th>
+            <th style="width: 300px;">Signal History</th>
+            <th class="sortable" data-key="last_seen">Last Seen <span class="sort-ind"></span></th>
+          </tr>
+        </thead>
+        <tbody id="devices-body"></tbody>
+      </table>
+    </div>
+  </main>
+
+  <footer>
+    <small>
+      Wi-Fi via <code>pywifi</code>, BLE via <code>bleak</code>. RSSI scale assumes −100…−30 dBm.
+    </small>
+  </footer>
+
+  <script src="/static/main.js"></script>
+</body>
+</html>

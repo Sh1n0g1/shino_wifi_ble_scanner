@@ -1,0 +1,73 @@
+flowchart TD
+  %% ====== High-level flow ======
+  A[Program start] --> B[Flask app init]
+  B --> C[Create DeviceStore<br/>(history_len = 60..180)]
+  B --> D[/Start background scanners/]
+
+  %% ====== Backend: Scanners and Store ======
+  subgraph BACKEND[Backend (Python)]
+    direction LR
+
+    subgraph SCAN[Scanners]
+      direction TB
+
+      W1[Wi-Fi scanner (pywifi)] --> W2{Every N seconds}
+      W2 --> W3[iface.scan() and iface.scan_results()]
+      W3 --> W4[For each network:<br/>SSID, BSSID, signal]
+      W4 --> W5[Heuristic signal→dBm if needed]
+      W5 --> S1[store.update(type=wifi,<br/>mac=BSSID, name=SSID, rssi)]
+
+      B1[BLE scanner (bleak)] --> B2[Async loop + detection callback]
+      B2 --> B3[on_adv(device, advertisement_data)]
+      B3 --> B4[Extract name, address, rssi]
+      B4 --> S2[store.update(type=ble,<br/>mac=address, name=name, rssi)]
+    end
+
+    subgraph STORE[DeviceStore]
+      direction TB
+      S1 & S2 --> S3[Normalize MAC]
+      S3 --> S4[Lookup vendor (mac-vendor-lookup)<br/>cached by OUI prefix]
+      S4 --> S5[Create/Update DeviceRecord by MAC]
+      S5 --> S6[Append rssi to history (deque)<br/>Update last_seen timestamp]
+      S6 --> S7[snapshot(): list of dicts]
+      S7 --> S8[Sort: Wi-Fi first, then BLE;<br/>within type by strength]
+    end
+
+    subgraph API[HTTP API (Flask)]
+      direction TB
+      E1[/GET \/api\/devices/]
+      E1 --> E2[store.snapshot()]
+      E2 --> E3[Return JSON:<br/>type, name/ssid, mac, vendor,<br/>signal_dbm, history[], last_seen]
+    end
+
+    D --> W1
+    D --> B1
+    STORE -. shared .- SCAN
+    STORE -. used by .- API
+  end
+
+  %% ====== Frontend ======
+  subgraph FRONTEND[Frontend (HTML/CSS/JS)]
+    direction TB
+    F0[Browser opens \/] --> F1[Render index.html + styles.css]
+    F1 --> F2[main.js boot]
+    F2 --> F3{Poll every 2s}
+    F3 -->|fetch| F4[/GET \/api\/devices/]
+    F4 -->|JSON| F5[Apply filters:<br/>text, type, RSSI range]
+    F5 --> F6[Apply sorting:<br/>clickable headers]
+    F6 --> F7[Render table rows]
+    F7 --> F8[Mask MAC toggle (UI-only):<br/>hide 4th & 5th octets]
+    F7 --> F9[Draw 300px sparkline per row<br/>(Canvas, RSSI history)]
+    F6 --> F10[Update stats counters:<br/>Wi-Fi count / BLE count]
+    F7 --> F11[Update "Last refresh" clock]
+
+    %% User interactions that re-render
+    U1[[User types in Search]] --> F5
+    U2[[User changes Type]] --> F5
+    U3[[User sets RSSI min/max]] --> F5
+    U4[[User clicks sortable header]] --> F6
+    U5[[User toggles Mask MAC]] --> F8
+  end
+
+  %% ====== Cross-edges ======
+  E3 --> F3
