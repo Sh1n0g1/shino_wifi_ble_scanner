@@ -69,8 +69,6 @@ Then open [http://localhost:5000](http://localhost:5000) in your browser.
 
 ## Screenshot
 
-*(Replace with your own)*
-
 ![screenshot](docs/screenshot.png)
 
 ---
