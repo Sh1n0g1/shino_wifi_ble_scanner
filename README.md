@@ -1,5 +1,8 @@
 # Wi-Fi & BLE Live Scanner (Flask + pywifi + bleak)
 
+
+![screenshot](docs/screenshot.png)
+
 This project is a **real-time Wi-Fi and BLE device scanner** built with:
 
 - **[pywifi](https://github.com/awkman/pywifi)** for Wi-Fi scanning  
@@ -67,11 +70,6 @@ Then open [http://localhost:5000](http://localhost:5000) in your browser.
 
 ---
 
-## Screenshot
-
-![screenshot](docs/screenshot.png)
-
----
 
 ## Notes
 
