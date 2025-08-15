@@ -22,7 +22,7 @@ It scans **Wi-Fi first**, then **BLE**, and displays results in a table with:
 ---
 
 ## Features
-
+- Works with Windows (confirm with Win11)
 - Continuous background scanning of **Wi-Fi networks** and **BLE devices**
 - **Vendor lookup** using MAC OUI database (optional)
 - Maintains **RSSI history** for each device
@@ -34,7 +34,6 @@ It scans **Wi-Fi first**, then **BLE**, and displays results in a table with:
 ---
 
 ## Requirements
-
 Python 3.8+
 
 Install dependencies:
