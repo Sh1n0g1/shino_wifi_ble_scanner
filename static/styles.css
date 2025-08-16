@@ -237,3 +237,27 @@ th.sortable.desc .sort-ind::before { content: "↓"; opacity: 0.9; }
 .signal-red {
   color: #ff7979; /* red */
 }
+
+.stale {
+  background-color: rgba(255, 64, 64, 0.15); /* light red overlay */
+}
+
+.btn {
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: #1a244a;
+  color: var(--text);
+  cursor: pointer;
+  font-size: 13px;
+}
+.btn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+.controls {
+  display: inline-flex;
+  gap: 8px;
+  align-items: center;
+  margin-left: 12px;
+}

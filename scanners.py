@@ -50,8 +50,9 @@ class DeviceRecord:
     ssid: Optional[str] = None   # Wi-Fi SSID
     vendor: Optional[str] = None
     rssi: Optional[int] = None   # dBm (negative)
+    first_seen: float = field(default_factory=time.time)
     last_seen: float = field(default_factory=time.time)
-    history: deque = field(default_factory=lambda: deque(maxlen=60))  # of int RSSI dBm
+    history: deque = field(default_factory=lambda: deque(maxlen=300))  # of int RSSI dBm
 
 
 class DeviceStore:
@@ -81,6 +82,16 @@ class DeviceStore:
             rec.rssi = int(rssi)
             rec.last_seen = time.time()
             rec.history.append(int(rssi))
+            
+            # --- save snapshot after each update ---
+        try:
+            from app import LOG_FILE  # import global filename
+            import json
+            snapshot = self.snapshot()
+            with open(LOG_FILE, "w", encoding="utf-8") as f:
+                json.dump(snapshot, f, indent=2, ensure_ascii=False)
+        except Exception as e:
+            print(f"[LOG] failed to write log: {e}")
 
     def snapshot(self) -> List[dict]:
         with self._lock:
@@ -93,6 +104,7 @@ class DeviceStore:
                     "ssid": rec.ssid,
                     "vendor": rec.vendor,
                     "rssi": rec.rssi,
+                    "first_seen": rec.first_seen,
                     "last_seen": rec.last_seen,
                     "history": list(rec.history),
                 })
@@ -108,6 +120,21 @@ class DeviceStore:
 
 
 # -------------------- Wi-Fi Scanner (pywifi) --------------------
+
+def fix_mojibake(ssid: str) -> str:
+    if isinstance(ssid, bytes):
+        try:
+            ssid = ssid.decode("utf-8", errors="replace")
+        except Exception:
+            ssid = ssid.decode("latin1", errors="replace")
+    elif isinstance(ssid, str):
+        # try to repair mojibake
+        try:
+            ssid = ssid.encode("latin1").decode("utf-8")
+        except Exception:
+            pass
+    return ssid
+
 def start_wifi_scanner(store: DeviceStore, interval_sec: int = 5):
     """
     Runs in a background thread. Every interval, triggers a scan and ingests results.
@@ -150,6 +177,7 @@ def start_wifi_scanner(store: DeviceStore, interval_sec: int = 5):
                     results = iface.scan_results()
                     for cell in results:
                         ssid = getattr(cell, "ssid", None)
+                        ssid = fix_mojibake(ssid) if ssid else None
                         bssid = getattr(cell, "bssid", None) or getattr(cell, "bssid", None)
                         signal = getattr(cell, "signal", None)
                         if bssid is None or signal is None:

@@ -14,9 +14,20 @@
     </div>
     
     <label class="toggle-label">
-      <input id="mask-mac" type="checkbox" />
+      <input id="mask-mac" type="checkbox" checked />
       <span>Mask MAC</span>
     </label>
+
+    <label class="toggle-label">
+      <input id="mask-ssid" type="checkbox" checked />
+      <span>Mask SSID</span>
+    </label>
+
+    <div class="controls">
+      <button id="pause-poll" class="btn">Stop</button>
+      <button id="resume-poll" class="btn" disabled>Resume</button>
+    </div>
+
   </header>
   <section class="stats">
     <div class="stat">
@@ -48,7 +59,7 @@
       <div class="filter-group">
         <label>RSSI (dBm)</label>
         <div class="rssi-range">
-          <input id="filter-rssi-min" type="number" value="-300">
+          <input id="filter-rssi-min" type="number" value="-127">
           <span>to</span>
           <input id="filter-rssi-max" type="number" value="0">
         </div>
@@ -63,6 +74,7 @@
             <th class="sortable" data-key="mac">MAC Address (Vendor) <span class="sort-ind"></span></th>
             <th class="sortable" data-key="signal_dbm">Signal (dBm) <span class="sort-ind"></span></th>
             <th style="width: 300px;">Signal History</th>
+            <th class="sortable" data-key="first_seen">First Seen <span class="sort-ind"></span></th>
             <th class="sortable" data-key="last_seen">Last Seen <span class="sort-ind"></span></th>
           </tr>
         </thead>

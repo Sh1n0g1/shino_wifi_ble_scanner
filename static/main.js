@@ -13,6 +13,23 @@ const MASK_CB = document.getElementById("mask-mac");
 let maskEnabled = true; // default ON
 if (MASK_CB) maskEnabled = !!MASK_CB.checked;
 
+const MASK_SSID_CB = document.getElementById("mask-ssid");
+let maskSsidEnabled = true; // default ON
+if (MASK_SSID_CB) maskSsidEnabled = !!MASK_SSID_CB.checked;
+
+const BTN_PAUSE  = document.getElementById("pause-poll");
+const BTN_RESUME = document.getElementById("resume-poll");
+
+let polling = true;
+let pollTimer = null;
+
+function updatePollButtons() {
+  if (!BTN_PAUSE || !BTN_RESUME) return;
+  BTN_PAUSE.disabled  = !polling;
+  BTN_RESUME.disabled = polling;
+}
+
+
 // Sorting
 const HEADER_CELLS = Array.from(document.querySelectorAll("thead th.sortable"));
 
@@ -59,6 +76,16 @@ function displayMac(mac) {
   }
 
   return sep ? pairs.join(sep) : pairs.join(":");
+}
+
+function displaySsid(ssid) {
+  if (!ssid) return "(unknown)";
+  if (!maskSsidEnabled) return ssid;
+
+  if (ssid.length <= 3) {
+    return ssid[0] + "*".repeat(ssid.length - 1);
+  }
+  return ssid.slice(0, 3) + "*".repeat(ssid.length - 3);
 }
 
 /**
@@ -134,7 +161,13 @@ function makeRow(d) {
 
   // Name / SSID
   const tdName = document.createElement("td");
-  tdName.textContent = d.name || "(unknown)";
+
+  if (d.type === "wifi") {
+    tdName.textContent = displaySsid(d.ssid || d.name || "(unknown)");
+  } else {
+    tdName.textContent = d.name || "(unknown)";
+  }
+
   tr.appendChild(tdName);
 
   // MAC (Vendor)
@@ -170,12 +203,28 @@ function makeRow(d) {
   }
   tr.appendChild(tdSpark);
 
+  // First seen
+  const tdFirst = document.createElement("td");
+  const f = d.first_seen_iso ? new Date(d.first_seen_iso) : new Date();
+  tdFirst.innerHTML = `<span title="${f.toISOString()}">${f.toLocaleString()}</span>`;
+  tdFirst.className = "dim";
+  tr.appendChild(tdFirst);
+
   // Last seen
   const tdLast = document.createElement("td");
   const t = d.last_seen_iso ? new Date(d.last_seen_iso) : new Date();
   tdLast.innerHTML = `<span title="${t.toISOString()}">${t.toLocaleString()}</span>`;
   tdLast.className = "dim";
   tr.appendChild(tdLast);
+
+  // Highlight stale (> 30s old), but only if device has existed for > 30s
+  const nowMs = Date.now();
+  const ageLast = (nowMs - (d.last_seen * 1000)) / 1000;   // seconds since last_seen
+  const ageFirst = (nowMs - (d.first_seen * 1000)) / 1000; // seconds since first_seen
+
+  if (ageLast > 30 && ageFirst > 30) {
+    tr.classList.add("stale");
+  }
 
   return tr;
 }
@@ -228,6 +277,7 @@ function sortDevices(devs) {
       case "name":       return (d.name || "").toLowerCase();
       case "mac":        return (d.mac || "").toLowerCase();
       case "signal_dbm": return Number.isFinite(d.signal_dbm) ? d.signal_dbm : -9999;
+      case "first_seen": return d.first_seen || 0;
       case "last_seen":  return d.last_seen || 0;
       default:           return "";
     }
@@ -293,7 +343,29 @@ function onFilterChange() {
   debounceTimer = setTimeout(refreshView, 120);
 }
 
+function stopPolling() {
+  polling = false;
+  if (pollTimer) {
+    clearTimeout(pollTimer);
+    pollTimer = null;
+  }
+  LAST.textContent = "Polling paused";
+  updatePollButtons();
+}
+
+function startPolling(immediate = true) {
+  if (polling) return; // already running
+  polling = true;
+  updatePollButtons();
+  if (immediate) {
+    poll(); // run now
+  } else {
+    pollTimer = setTimeout(poll, POLL_MS);
+  }
+}
+
 async function poll() {
+  if (!polling) return; // skip if paused
   try {
     const res = await fetch("/api/devices", { cache: "no-store" });
     const data = await res.json();
@@ -323,8 +395,23 @@ if (MASK_CB) {
   });
 }
 
+if (MASK_SSID_CB) {
+  MASK_SSID_CB.addEventListener("change", () => {
+    maskSsidEnabled = !!MASK_SSID_CB.checked;
+    refreshView(); // re-render with masked/unmasked SSIDs
+  });
+}
+
+if (BTN_PAUSE) {
+  BTN_PAUSE.addEventListener("click", stopPolling);
+}
+if (BTN_RESUME) {
+  BTN_RESUME.addEventListener("click", () => startPolling(true));
+}
 
 attachHeaderSorting();
+
+updatePollButtons();
 
 // Start
 poll();
