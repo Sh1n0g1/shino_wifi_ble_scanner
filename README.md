@@ -69,6 +69,22 @@ Then open [http://localhost:5000](http://localhost:5000) in your browser.
 
 ---
 
+## Scan Frequency
+
+- **Wi-Fi scanner**
+  - Runs a scan cycle every **~7.5 seconds** (5 second interval + ~2.5 second driver settle time).
+  - Configurable via the `interval_sec` argument in `start_wifi_scanner()`.
+  - Windows drivers often throttle scan requests, so values much lower than 5s may not work reliably.
+
+- **BLE scanner**
+  - Runs **continuously** and updates whenever nearby devices broadcast advertisements.
+  - Typical BLE advertising intervals are **20 ms – 1 second**, so updates are near real-time.
+
+- **Frontend polling**
+  - The browser polls the Flask backend every **2 seconds** (`POLL_MS = 2000` in `main.js`) to refresh the table and sparklines.
+
+---
+
 
 ## Notes
 
