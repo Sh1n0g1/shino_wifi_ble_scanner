@@ -143,8 +143,8 @@ function signalClass(rssi) {
   if (rssi === null || rssi === undefined) return "";
   // Stronger signals are closer to 0
   if (rssi >= -50) return "signal-green";      // Excellent
-  if (rssi >= -60) return "signal-yellow";     // Good
-  if (rssi >= -70) return "signal-orange";     // Fair
+  if (rssi >= -70) return "signal-yellow";     // Good
+  if (rssi >= -90) return "signal-orange";     // Fair
   return "signal-red";                         // Weak
 }
 

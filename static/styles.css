@@ -70,7 +70,6 @@ tbody td {
   vertical-align: middle;
 }
 
-tbody tr:nth-child(even) { background: var(--row-alt); }
 
 .badge {
   display: inline-block;
